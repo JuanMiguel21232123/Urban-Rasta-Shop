@@ -9,7 +9,7 @@ const BUCKET = "product-images";
 const EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 const MAX_IMAGE = 50 * 1024 * 1024;
 const TZ = { timeZone: "America/Bogota" };
-let me = null, products = [], orders = [], expenses = [], settings = {}, editing = null;
+let me = null, products = [], subs = [], orders = [], expenses = [], settings = {}, editing = null;
 
 function toast(t) {
   const el = $("toast");
@@ -110,7 +110,7 @@ async function enter(user) {
 }
 
 async function loadAll() {
-  await Promise.all([loadOrders(), loadProducts(), loadExpenses(), loadSettings()]);
+  await Promise.all([loadOrders(), loadProducts(), loadSubs(), loadExpenses(), loadSettings()]);
   $("last-updated").textContent = "Actualizado " + new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
 }
 
@@ -262,6 +262,131 @@ function renderEarnings() {
 }
 $("earn-period").addEventListener("change", renderEarnings);
 // =====================================================================
+// SUBSECCIONES (dentro de cada colección)
+// =====================================================================
+async function loadSubs() {
+  const { data, error } = await db.from("subcategories").select("*").order("sort_order").order("id");
+  if (error) {
+    console.error("loadSubs:", error);
+    return setMsg($("sub-message"), "No se pudieron cargar las subsecciones. ¿Ya ejecutaste subsecciones.sql en Supabase?", "error");
+  }
+  setMsg($("sub-message"), "");
+  subs = data;
+  renderSubs();
+  renderProducts();
+}
+
+const subName = (id) => { const s = subs.find((x) => x.id === id); return s ? s.name : ""; };
+const subsOf = (cat) => subs.filter((s) => s.category === cat);
+
+// Lista de subsecciones en el formulario de producto (depende de la categoría elegida)
+function fillSubSelect(selected) {
+  const sel = $("p-subcategory");
+  const cur = selected !== undefined ? selected : sel.value;
+  const list = subsOf($("p-category").value);
+  sel.innerHTML = `<option value="">Sin subsección</option>` + list.map((s) =>
+    `<option value="${s.id}">${esc(s.name)}${s.active ? "" : " (oculta)"}</option>`).join("");
+  sel.value = list.some((s) => String(s.id) === String(cur)) ? String(cur) : "";
+}
+$("p-category").addEventListener("change", () => fillSubSelect());
+
+function renderSubs() {
+  fillSubSelect();
+  $("subs-groups").innerHTML = Object.entries(CATS).map(([k, label]) => {
+    const list = subsOf(k);
+    const rows = list.map((s, i) => {
+      const n = products.filter((p) => p.subcategory_id === s.id).length;
+      return `<div class="sub-row${s.active ? "" : " is-hidden"}">
+        <div>
+          <strong>${esc(s.name)}</strong>
+          <span class="sub-meta">${n} producto${n === 1 ? "" : "s"} · ${s.active ? "Visible en la tienda" : "Oculta"}</span>
+        </div>
+        <div class="row-actions">
+          <button type="button" data-act="up" data-id="${s.id}"${i === 0 ? " disabled" : ""} aria-label="Subir">↑</button>
+          <button type="button" data-act="down" data-id="${s.id}"${i === list.length - 1 ? " disabled" : ""} aria-label="Bajar">↓</button>
+          <button type="button" data-act="rename" data-id="${s.id}">Renombrar</button>
+          <button type="button" data-act="toggle" data-id="${s.id}">${s.active ? "Ocultar" : "Mostrar"}</button>
+          <button type="button" class="danger" data-act="delete" data-id="${s.id}">Eliminar</button>
+        </div>
+      </div>`;
+    }).join("");
+    return `<div class="sub-group">
+      <h3 class="sub cat-${k}">${esc(label)}</h3>
+      ${rows || `<p class="muted small">Todavía no hay subsecciones en ${esc(label)}.</p>`}
+    </div>`;
+  }).join("");
+}
+
+$("sub-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const m = $("sub-message"), btn = $("sub-save");
+  const category = $("sub-category").value, name = $("sub-name").value.trim();
+  if (!name) return setMsg(m, "Escribe el nombre de la subsección.", "error");
+  if (subsOf(category).some((s) => s.name.toLowerCase() === name.toLowerCase()))
+    return setMsg(m, `Ya existe "${name}" en ${CATS[category]}.`, "error");
+  const sort_order = subsOf(category).reduce((mx, s) => Math.max(mx, s.sort_order), 0) + 1;
+  btn.disabled = true;
+  setMsg(m, "Guardando...");
+  const { error } = await db.from("subcategories").insert({ category, name, sort_order });
+  btn.disabled = false;
+  if (error) return setMsg(m, "No se pudo crear la subsección.", "error");
+  $("sub-name").value = "";
+  setMsg(m, `Subsección "${name}" creada en ${CATS[category]}.`, "success");
+  toast("Subsección creada.");
+  loadSubs();
+});
+
+async function moveSub(s, dir) {
+  const list = subsOf(s.category), i = list.findIndex((x) => x.id === s.id), j = i + dir;
+  if (j < 0 || j >= list.length) return;
+  [list[i], list[j]] = [list[j], list[i]];
+  // Se renumera toda la lista para que el orden sea siempre único y estable
+  const changes = list.map((x, idx) => ({ id: x.id, sort_order: idx + 1 })).filter((c) => subs.find((x) => x.id === c.id).sort_order !== c.sort_order);
+  const results = await Promise.all(changes.map((c) => db.from("subcategories").update({ sort_order: c.sort_order }).eq("id", c.id)));
+  if (results.some((r) => r.error)) toast("No se pudo cambiar el orden.");
+  loadSubs();
+}
+
+$("subs-groups").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-act]");
+  if (!btn) return;
+  const s = subs.find((x) => String(x.id) === btn.dataset.id);
+  if (!s) return;
+  const act = btn.dataset.act;
+  if (act === "up" || act === "down") { btn.disabled = true; return moveSub(s, act === "up" ? -1 : 1); }
+
+  if (act === "rename") {
+    const raw = prompt("Nuevo nombre de la subsección:", s.name);
+    if (raw === null) return;
+    const name = raw.trim();
+    if (!name || name === s.name) return;
+    if (name.length > 60) return toast("El nombre es demasiado largo (máximo 60 caracteres).");
+    if (subsOf(s.category).some((x) => x.id !== s.id && x.name.toLowerCase() === name.toLowerCase())) return toast(`Ya existe "${name}" en ${CATS[s.category]}.`);
+    const { error } = await db.from("subcategories").update({ name }).eq("id", s.id);
+    if (error) return toast("No se pudo renombrar.");
+    toast("Subsección renombrada.");
+    return loadSubs();
+  }
+
+  btn.disabled = true;
+  if (act === "toggle") {
+    const { error } = await db.from("subcategories").update({ active: !s.active }).eq("id", s.id);
+    if (error) { toast("No se pudo actualizar."); btn.disabled = false; return; }
+    toast(s.active ? "Subsección oculta." : "Subsección visible.");
+    return loadSubs();
+  }
+  // Eliminar: los productos no se borran, solo quedan "sin subsección"
+  const n = products.filter((p) => p.subcategory_id === s.id).length;
+  const extra = n ? ` Sus ${n} producto${n === 1 ? "" : "s"} no se borran: quedan sin subsección.` : "";
+  if (!confirm(`¿Eliminar la subsección "${s.name}" de ${CATS[s.category]}?${extra}`)) { btn.disabled = false; return; }
+  const { error } = await db.from("subcategories").delete().eq("id", s.id);
+  if (error) { toast("No se pudo eliminar."); btn.disabled = false; return; }
+  toast("Subsección eliminada.");
+  loadSubs();
+  loadProducts();
+});
+
+// =====================================================================
 // PRODUCTOS (inventario)
 // =====================================================================
 async function loadProducts() {
@@ -278,6 +403,7 @@ async function loadProducts() {
   products = data;
   products.forEach((p) => p.product_variants.sort((a, b) => a.id - b.id));
   renderProducts();
+  renderSubs();
   refreshSale();
 }
 
@@ -313,7 +439,7 @@ function row(p) {
     : `<span class="thumb">UR</span>`;
   return `<tr>
     <td><div class="product-cell">${img}<div><strong>${esc(p.name)}</strong><span>${esc(p.description)}</span>${variantsLine(p)}</div></div></td>
-    <td><span class="badge cat-${esc(p.category)}">${esc(CATS[p.category] || p.category)}</span></td>
+    <td><span class="badge cat-${esc(p.category)}">${esc(CATS[p.category] || p.category)}</span>${subName(p.subcategory_id) ? `<span class="stock-note muted">${esc(subName(p.subcategory_id))}</span>` : ""}</td>
     <td>${money(p.price)}</td>
     <td>${stockCell(p)}</td>
     <td><span class="badge ${p.active ? "on" : "off"}">${p.active ? "Visible" : "Oculto"}</span></td>
@@ -459,12 +585,14 @@ function resetForm() {
   $("cancel-edit").hidden = true;
   $("image-current").hidden = true;
   $("variants-list").innerHTML = "";
+  fillSubSelect("");
   setMsg($("form-message"), "");
 }
 
 function startEdit(p) {
   editing = p;
   $("p-category").value = p.category;
+  fillSubSelect(p.subcategory_id ?? "");
   $("p-price").value = p.price;
   $("p-name").value = p.name;
   $("p-description").value = p.description || "";
@@ -504,7 +632,7 @@ $("product-form").addEventListener("submit", async (e) => {
     if (file) { uploaded = await uploadImage(file); image_url = uploaded.url; }
     else if (editing && $("p-remove-image").checked) image_url = null;
 
-    const data = { category: $("p-category").value, name, description: desc || null, price, image_url, active: $("p-active").checked, stock: variants.length ? null : stock };
+    const data = { category: $("p-category").value, subcategory_id: $("p-subcategory").value ? Number($("p-subcategory").value) : null, name, description: desc || null, price, image_url, active: $("p-active").checked, stock: variants.length ? null : stock };
     const { data: saved, error } = editing
       ? await db.from("products").update(data).eq("id", editing.id)
       : await db.from("products").insert(data).select("id").single();

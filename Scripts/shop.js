@@ -307,7 +307,7 @@ async function startShop() {
   loadSettings();
   const { data, error } = await db
     .from("products")
-    .select("id,category,name,description,price,image_url,active,created_at,sold_out, product_variants(id,name,price,active,sold_out)")
+    .select("id,category,subcategory_id,name,description,price,image_url,active,created_at,sold_out, product_variants(id,name,price,active,sold_out)")
     .eq("active", true)
     .order("created_at", { ascending: false });
   if (error) return false;

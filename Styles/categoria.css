@@ -33,3 +33,12 @@ body { --accent: var(--gold); }
 .card.soldout .price { color: var(--muted); }
 .card button.add:disabled { opacity: .55; cursor: not-allowed; }
 .card button.add:disabled:hover { border-color: var(--line); color: var(--muted); }
+
+/* Subsecciones de la colección */
+.sub-switch { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; }
+.sub-chip { padding: 8px 18px; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--muted); font: 500 .84rem var(--sans); cursor: pointer; transition: .2s; }
+.sub-chip:hover { color: var(--text); }
+.sub-chip[aria-pressed="true"] { border-color: var(--accent); color: var(--text); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.group-title { grid-column: 1 / -1; margin-top: 18px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font: 600 1.7rem var(--serif); }
+.group-title::before { content: ""; display: inline-block; width: 22px; height: 2px; margin-right: 12px; vertical-align: middle; background: var(--accent); }
+.group-title:first-child { margin-top: 0; }

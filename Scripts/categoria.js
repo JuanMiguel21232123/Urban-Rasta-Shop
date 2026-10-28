@@ -56,14 +56,61 @@ function card(p) {
 
 let loaded = false;
 
+// ---------- Subsecciones (las crea el admin; categoria.html?c=vapers&s=ID abre una directo) ----------
+let subs = [];
+let activeSub = new URLSearchParams(location.search).get("s") || "all";
+
+async function loadSubs() {
+  if (!db) return;
+  const { data } = await db.from("subcategories").select("id,name,sort_order")
+    .eq("category", CAT).eq("active", true).order("sort_order").order("id");
+  subs = data || [];
+}
+
+// Solo se muestran las subsecciones que tienen al menos un producto visible
+const visibleSubs = () => {
+  const inCat = products.filter((p) => p.category === CAT);
+  return subs.filter((s) => inCat.some((p) => String(p.subcategory_id) === String(s.id)));
+};
+
+function renderSubs() {
+  const vis = visibleSubs(), box = $("#sub-switch");
+  if (activeSub !== "all" && !vis.some((s) => String(s.id) === activeSub)) activeSub = "all";
+  box.hidden = !vis.length;
+  box.innerHTML = vis.length
+    ? [["all", "Todo"], ...vis.map((s) => [String(s.id), s.name])].map(([id, label]) =>
+        `<button class="sub-chip" type="button" data-sub="${id}" aria-pressed="${id === activeSub}">${esc(label)}</button>`).join("")
+    : "";
+}
+
 function render() {
   const q = $("#search").value.trim().toLowerCase();
   const inCat = products.filter((p) => p.category === CAT);
-  const list = inCat.filter((p) => !q ||
-    [p.name, p.description, ...variantsOf(p).map((v) => v.name)].join(" ").toLowerCase().includes(q));
-  $("#products").innerHTML = list.length ? list.map(card).join("")
-    : `<p class="empty">${inCat.length ? "No encontramos nada con esa búsqueda." : "Estamos preparando esta colección. Muy pronto verás aquí nuestros productos."}</p>`;
+  const list = inCat.filter((p) => (activeSub === "all" || String(p.subcategory_id) === activeSub) && (!q ||
+    [p.name, p.description, ...variantsOf(p).map((v) => v.name)].join(" ").toLowerCase().includes(q)));
+  if (!list.length) {
+    $("#products").innerHTML = `<p class="empty">${inCat.length ? "No encontramos nada con esa búsqueda." : "Estamos preparando esta colección. Muy pronto verás aquí nuestros productos."}</p>`;
+    return;
+  }
+  const vis = visibleSubs();
+  if (activeSub !== "all" || !vis.length) { $("#products").innerHTML = list.map(card).join(""); return; }
+  // En "Todo": productos agrupados por subsección, y al final los que no tienen
+  const groups = vis.map((s) => [s.name, list.filter((p) => String(p.subcategory_id) === String(s.id))]);
+  groups.push(["Más productos", list.filter((p) => !vis.some((s) => String(s.id) === String(p.subcategory_id)))]);
+  $("#products").innerHTML = groups.filter(([, ps]) => ps.length)
+    .map(([title, ps]) => `<h3 class="group-title">${esc(title)}</h3>${ps.map(card).join("")}`).join("");
 }
+
+$("#sub-switch").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-sub]");
+  if (!b) return;
+  activeSub = b.dataset.sub;
+  const url = new URL(location.href);
+  if (activeSub === "all") url.searchParams.delete("s"); else url.searchParams.set("s", activeSub);
+  history.replaceState(null, "", url);
+  renderSubs();
+  render();
+});
 
 $("#search").addEventListener("input", () => { if (loaded) render(); });
 
@@ -87,11 +134,13 @@ $("#products").addEventListener("click", (e) => {
   setTimeout(() => (btn.textContent = "Agregar al pedido"), 1200);
 });
 
-startShop().then((ok) => {
+startShop().then(async (ok) => {
   if (!ok) {
     $("#products").innerHTML = `<p class="empty">No se pudo cargar el catálogo. Intenta más tarde.</p>`;
     return;
   }
+  await loadSubs();
   loaded = true;
+  renderSubs();
   render();
 });

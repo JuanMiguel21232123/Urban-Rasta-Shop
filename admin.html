@@ -75,6 +75,7 @@
         <nav class="subtabs" role="tablist" aria-label="Productos" data-section="productos" hidden>
           <button class="sub-tab" role="tab" data-tab="inventario" aria-selected="false">Inventario</button>
           <button class="sub-tab" role="tab" data-tab="agregar" aria-selected="false" id="tab-btn-agregar">Agregar producto</button>
+          <button class="sub-tab" role="tab" data-tab="subsecciones" aria-selected="false">Subsecciones</button>
         </nav>
         <nav class="subtabs single" role="tablist" aria-label="Mi tienda" data-section="tienda" hidden>
           <button class="sub-tab" role="tab" data-tab="personalizacion" aria-selected="false">Personalización</button>
@@ -247,6 +248,13 @@
               <input id="p-price" type="number" min="0" step="1" inputmode="numeric" placeholder="25000" required>
             </div>
             <div class="field wide">
+              <label for="p-subcategory">Subsección (opcional)</label>
+              <select id="p-subcategory">
+                <option value="">Sin subsección</option>
+              </select>
+              <p class="muted small">Las subsecciones se crean en Productos › Subsecciones y dependen de la categoría elegida.</p>
+            </div>
+            <div class="field wide">
               <label for="p-name">Nombre</label>
               <input id="p-name" type="text" minlength="2" maxlength="120" required>
             </div>
@@ -287,6 +295,33 @@
             </div>
             <p id="form-message" class="msg wide" role="status" aria-live="polite"></p>
           </form>
+        </div>
+      </section>
+
+      <!-- SUBSECCIONES -->
+      <section id="tab-subsecciones" class="tab-panel" role="tabpanel" hidden>
+        <div class="card panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">COLECCIONES</p><h2>Subsecciones</h2></div>
+          </div>
+          <p class="muted small">Organiza cada colección en subsecciones (por ejemplo, Vapers › Desechables, Recargables; Ropa › Camisetas, Gorras). En la tienda aparecen como filtros dentro de la colección. Una subsección sin productos visibles no se muestra al público. Luego asigna los productos desde Agregar producto o Editar.</p>
+          <form id="sub-form" class="sub-form" novalidate>
+            <div class="field">
+              <label for="sub-category">Colección</label>
+              <select id="sub-category">
+                <option value="esenciales">Esenciales</option>
+                <option value="vapers">Vapers</option>
+                <option value="ropa">Ropa</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="sub-name">Nombre de la subsección</label>
+              <input id="sub-name" type="text" maxlength="60" placeholder="Ej. Desechables" required>
+            </div>
+            <button id="sub-save" class="btn solid" type="submit">Crear subsección</button>
+          </form>
+          <p id="sub-message" class="msg" role="status" aria-live="polite"></p>
+          <div id="subs-groups"></div>
         </div>
       </section>
 

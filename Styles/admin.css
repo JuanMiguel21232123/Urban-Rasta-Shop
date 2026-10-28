@@ -194,3 +194,15 @@ input[type="color"] { height: 46px; padding: 4px; cursor: pointer; }
 .order-delivery { font-size: .88rem; }
 .order-delivery a { color: var(--green); }
 .order-delivery a:hover { text-decoration: underline; }
+
+/* ---------- Subsecciones ---------- */
+.sub-form { display: grid; grid-template-columns: 200px 1fr auto; gap: 12px; align-items: end; margin: 16px 0 4px; }
+.sub-group { margin-top: 24px; }
+.sub-group h3.sub { margin: 0 0 4px; }
+.sub-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; margin-top: 8px; border: 1px solid var(--line); background: #0d100e; }
+.sub-row.is-hidden { opacity: .6; }
+.sub-row strong { font: 600 1.15rem var(--serif); }
+.sub-row .sub-meta { display: block; font-size: .78rem; color: var(--muted); }
+.row-actions button:disabled { opacity: .35; cursor: not-allowed; }
+.row-actions button:disabled:hover { border-color: var(--line); color: var(--text); }
+@media (max-width: 800px) { .sub-form { grid-template-columns: 1fr; } }

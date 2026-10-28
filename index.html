@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0c0b">
+  <meta name="description" content="Urban Rasta Shop, Villamaría, Caldas. Parafernalia, vapers y ropa con estilo. Solo mayores de 18 años.">
+  <title>Urban Rasta Shop | Villamaría, Caldas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>try { if (sessionStorage.getItem("urs-18") !== "1") document.documentElement.classList.add("need-age"); } catch (e) { document.documentElement.classList.add("need-age"); }</script>
+  <link rel="stylesheet" href="Styles/index.css">
+</head>
+<body>
+  <!-- Verificación de edad -->
+  <div id="age-gate" class="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+    <div class="gate-box">
+      <p class="eyebrow">URBAN RASTA SHOP</p>
+      <h2 id="gate-title">¿Eres mayor de edad?</h2>
+      <p>Este sitio ofrece productos para adultos. Debes tener 18 años o más para entrar.</p>
+      <button id="age-yes" class="btn solid" type="button">Soy mayor de 18</button>
+      <a class="btn" href="https://www.google.com">Salir</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="wrap">
+      <a class="brand" href="#inicio">URBAN RASTA<small>SHOP</small></a>
+      <nav aria-label="Navegación principal">
+        <a href="#colecciones">Colecciones</a>
+        <a href="#visitanos">Visítanos</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inicio">
+    <section class="hero wrap">
+      <p class="eyebrow">VILLAMARÍA · CALDAS</p>
+      <h1><span class="plain" data-s="hero_title_1">Cultura urbana,</span><br><span data-s="hero_title_2">con elegancia.</span></h1>
+      <p data-s="hero_text">Piezas seleccionadas para quienes disfrutan los detalles: parafernalia, vapers y ropa con carácter propio.</p>
+      <a class="btn solid" href="#colecciones">Ver colecciones</a>
+      <a class="btn" id="wa-hero" href="#visitanos">Escríbenos</a>
+    </section>
+
+    <section id="colecciones" class="wrap" aria-label="Colecciones">
+      <div class="blocks">
+        <a class="block b-green" href="categoria.html?c=esenciales">
+          <span class="num">01</span>
+          <h3 data-s="esenciales_title">Esenciales</h3>
+          <p data-s="esenciales_text">Todo lo que tu ritual necesita, reunido en un solo lugar. Accesorios y parafernalia elegidos por su calidad, su diseño y su durabilidad, para que cada sesión se sienta como debe: cuidada y a tu manera.</p>
+          <span class="more">Explorar →</span>
+        </a>
+        <a class="block b-blue" href="categoria.html?c=vapers">
+          <span class="num">02</span>
+          <h3 data-s="vapers_title">Vapers</h3>
+          <p data-s="vapers_text">Vapor con carácter y sabor. Dispositivos y complementos seleccionados con criterio, de líneas limpias y buen rendimiento, para quienes prefieren una experiencia moderna, discreta y bien resuelta.</p>
+          <span class="more">Explorar →</span>
+        </a>
+        <a class="block b-gold" href="categoria.html?c=ropa">
+          <span class="num">03</span>
+          <h3 data-s="ropa_title">Ropa</h3>
+          <p data-s="ropa_text">Estilo que se lleva en la calle. Prendas con actitud urbana y acabados cuidados, pensadas para expresar quién eres sin esfuerzo, de día o de noche, con la identidad de la casa.</p>
+          <span class="more">Explorar →</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="visitanos" class="wrap pad">
+      <div class="visit">
+        <div>
+          <p class="eyebrow">VISÍTANOS</p>
+          <h2>Estamos en Villamaría<span>.</span></h2>
+          <p data-s="visit_text">Ven a conocer la tienda o escríbenos por WhatsApp para consultar disponibilidad y precios.</p>
+        </div>
+        <div class="links">
+          <a id="wa-link" class="btn solid" target="_blank" rel="noopener noreferrer" href="#">WhatsApp ↗</a>
+          <a class="btn" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&query=Villamar%C3%ADa%2C%20Caldas">Google Maps ↗</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <a class="brand" href="#inicio">URBAN RASTA SHOP</a>
+      <p>Villamaría, Caldas, Colombia · Venta exclusiva a mayores de 18 años.</p>
+      <p>&copy; <span id="year"></span> Urban Rasta Shop. Todos los derechos reservados.</p>
+      <a class="admin-link" href="admin.html">Acceso administrativo</a>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script>
+  <script src="Scripts/config.js"></script>
+  <script src="Scripts/shop.js"></script>
+  <script src="Scripts/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+/* Página de colección (se carga junto con index.css) */
+body[data-cat="esenciales"] { --accent: var(--green); }
+body[data-cat="vapers"] { --accent: var(--blue); }
+body[data-cat="ropa"] { --accent: var(--gold); }
+body { --accent: var(--gold); }
+
+.cat-hero { padding: clamp(44px, 8vw, 80px) 0 20px; }
+.cat-hero .back { display: inline-block; margin-bottom: 26px; font-size: .82rem; letter-spacing: .08em; color: var(--muted); transition: .2s; }
+.cat-hero .back:hover { color: var(--accent); }
+.cat-hero .eyebrow { color: var(--accent); }
+.cat-hero h1 { font-size: clamp(2.8rem, 8vw, 5rem); margin: 12px 0 18px; padding-bottom: 18px; position: relative; }
+.cat-hero h1::after { content: ""; position: absolute; left: 0; bottom: 0; width: 64px; height: 2px; background: var(--accent); }
+.cat-hero p#cat-text { max-width: 640px; color: var(--muted); font-size: 1.02rem; }
+
+.cat-body { padding-bottom: 90px; }
+.cat-switch { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 24px; }
+.cat-switch .tab { display: inline-block; }
+.cat-switch .tab[aria-current="true"] { border-color: var(--accent); color: var(--text); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+
+.search { max-width: 360px; margin-bottom: 26px; }
+
+.card { transition: border-color .25s, transform .25s; }
+.card:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+.card .meta { font-size: .76rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-top: 4px; }
+.variant-field { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+.variant-field label { font-size: .74rem; letter-spacing: .06em; color: var(--muted); }
+.variant-field select { width: 100%; padding: 10px 12px; background: #0b0e0c; border: 1px solid var(--line); color: var(--text); font: inherit; font-size: .9rem; border-radius: 0; }
+.variant-field select:focus { outline: none; border-color: var(--accent); }
+.variant-field select.invalid { border-color: #d9625a; }
+.card button.add:hover { border-color: var(--accent); color: var(--accent); }
+
+.card.soldout .img { opacity: .45; }
+.card.soldout .price { color: var(--muted); }
+.card button.add:disabled { opacity: .55; cursor: not-allowed; }
+.card button.add:disabled:hover { border-color: var(--line); color: var(--muted); }

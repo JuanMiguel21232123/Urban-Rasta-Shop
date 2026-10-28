@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0c0b">
+  <meta name="description" content="Catálogo de Urban Rasta Shop, Villamaría, Caldas. Solo mayores de 18 años.">
+  <title>Colección | Urban Rasta Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>try { if (sessionStorage.getItem("urs-18") !== "1") document.documentElement.classList.add("need-age"); } catch (e) { document.documentElement.classList.add("need-age"); }</script>
+  <link rel="stylesheet" href="Styles/index.css">
+  <link rel="stylesheet" href="Styles/categoria.css">
+</head>
+<body>
+  <!-- Verificación de edad -->
+  <div id="age-gate" class="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+    <div class="gate-box">
+      <p class="eyebrow">URBAN RASTA SHOP</p>
+      <h2 id="gate-title">¿Eres mayor de edad?</h2>
+      <p>Este sitio ofrece productos para adultos. Debes tener 18 años o más para entrar.</p>
+      <button id="age-yes" class="btn solid" type="button">Soy mayor de 18</button>
+      <a class="btn" href="https://www.google.com">Salir</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="wrap">
+      <a class="brand" href="index.html">URBAN RASTA<small>SHOP</small></a>
+      <nav aria-label="Navegación principal">
+        <a href="index.html">Inicio</a>
+        <a href="index.html#colecciones">Colecciones</a>
+        <a href="index.html#visitanos">Visítanos</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="cat-hero wrap">
+      <a class="back" href="index.html#colecciones">← Todas las colecciones</a>
+      <p class="eyebrow" id="cat-eyebrow">COLECCIÓN</p>
+      <h1 id="cat-title">Colección</h1>
+      <p id="cat-text"></p>
+    </section>
+
+    <section class="wrap cat-body">
+      <nav id="cat-switch" class="cat-switch" aria-label="Otras colecciones"></nav>
+      <div class="field search">
+        <label for="search">Buscar</label>
+        <input id="search" type="search" placeholder="Marca o sabor" maxlength="60" autocomplete="off">
+      </div>
+      <div id="products" class="grid" aria-live="polite"><p class="empty">Cargando catálogo…</p></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <a class="brand" href="index.html">URBAN RASTA SHOP</a>
+      <p>Villamaría, Caldas, Colombia · Venta exclusiva a mayores de 18 años.</p>
+      <p>&copy; <span id="year"></span> Urban Rasta Shop. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script>
+  <script src="Scripts/config.js"></script>
+  <script src="Scripts/shop.js"></script>
+  <script src="Scripts/categoria.js"></script>
+</body>
+</html>
